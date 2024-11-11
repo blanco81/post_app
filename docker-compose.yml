@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: post_app
+    ports:
+      - "8000:8000"
+    environment:
+      - PROJECT_NAME=User-Post-Tag
+      - DB_DRIVER=postgresql+asyncpg
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=post
+      - DB_USER=pronotez
+      - DB_PASSWORD=pass1234
+      - DB_SECRET_KEY=5EPR0T0N3C24
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=120
+      - JWT_SECRET_KEY=PR0T0N3C24
+      - DATABASE_URL=DB_DRIVER://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_DATABASE         
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+
+  db:
+    image: postgres:13
+    container_name: post_db
+    environment:
+      POSTGRES_USER: pronotez
+      POSTGRES_PASSWORD: pass1234
+      POSTGRES_DB: post
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  alembic:
+    build: .
+    container_name: alembic
+    entrypoint: ["alembic", "upgrade", "head"]
+    environment:
+      - DB_DRIVER=postgresql
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_DATABASE=post
+      - DB_USER=pronotez
+      - DB_PASSWORD=pass1234
+      - DB_SECRET_KEY=5EPR0T0N3C24
+      - SYNC_DATABASE_URL=DB_DRIVER://DB_USER:DB_PASSWORD@DB_HOST:DB_PORT/DB_DATABASE  
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

@@ -1,0 +1,17 @@
+# python cache
+__pycache__
+.mypy_cache
+.pytest_cache
+
+# venv
+venv
+.env
+
+# IDE
+.vscode
+
+# Backup files
+/backup/
+
+# other
+.python-version
